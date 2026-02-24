@@ -130,6 +130,11 @@ We welcome contributions of all kinds! Please see `CONTRIBUTING.md` for details.
 - **v0.4**: Cross-task memory and knowledge graph integration
 - **v0.5**: Distributed deployment and fault tolerance
 
+## Other notes
+This is my first open-source project. I still have a lot to learn, so I really appreciate your support and look forward to growing together with you.
+By the way, I’m building a more interesting platform. Hope you’ll keep following, leave me comments, and add me on WeChat: zhu751938340.
+Especially welcome friends working on biomedical & healthcare-related models, agents, and skill development!
+
 ## License
 
 This project is licensed under the MIT License.
