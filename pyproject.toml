@@ -1,0 +1,62 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mals"
+version = "0.1.0"
+description = "Multi-Agent Living Space (MALS) — A blackboard-architecture-based multi-agent collaboration framework"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.11"
+authors = [
+    {name = "MALS Contributors"}
+]
+keywords = ["multi-agent", "llm", "blackboard-architecture", "ai-agents", "collaboration"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "openai>=1.0.0",
+    "pydantic>=2.0.0",
+    "redis>=5.0.0",
+    "rich>=13.0.0",
+    "click>=8.0.0",
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+    "ruff>=0.1.0",
+    "mypy>=1.0.0",
+]
+
+[project.scripts]
+mals = "mals.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/HebbZhu/multi-agent-living-space"
+Repository = "https://github.com/HebbZhu/multi-agent-living-space"
+Issues = "https://github.com/HebbZhu/multi-agent-living-space/issues"
+
+[tool.setuptools.packages.find]
+include = ["mals*"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
