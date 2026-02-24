@@ -136,7 +136,7 @@ def agents() -> None:
 def init() -> None:
     """Generate a sample mals.yaml configuration file."""
     sample_config = """# MALS Configuration
-# See https://github.com/HebbZhu/multi-agent-living-space for documentation.
+# See https://github.com/HebbZhu/multi-agent-living-system for documentation.
 
 llm:
   # Model for specialist agents (any OpenAI-compatible model)

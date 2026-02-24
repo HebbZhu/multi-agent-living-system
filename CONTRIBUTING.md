@@ -13,8 +13,8 @@ First off, thank you for considering contributing to MALS! It's people like you 
 1.  **Fork & Clone**: Fork the repository and clone it to your local machine.
 
     ```bash
-    git clone https://github.com/<your-username>/multi-agent-living-space.git
-    cd multi-agent-living-space
+    git clone https://github.com/<your-username>/multi-agent-living-system.git
+    cd multi-agent-living-system
     ```
 
 2.  **Create a Virtual Environment**:
