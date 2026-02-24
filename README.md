@@ -132,7 +132,7 @@ We welcome contributions of all kinds! Please see `CONTRIBUTING.md` for details.
 
 ## Other notes
 This is my first open-source project. I still have a lot to learn, so I really appreciate your support and look forward to growing together with you.
-By the way, I’m building a more interesting platform. Hope you’ll keep following, leave me comments, and add me on WeChat: zhu751938340.
+By the way, I’m building a more interesting platform. Hope you’ll keep following, leave me comments, and send email to me: imnotfcrobot@gmail.com.
 Especially welcome friends working on biomedical & healthcare-related models, agents, and skill development!
 
 ## License
