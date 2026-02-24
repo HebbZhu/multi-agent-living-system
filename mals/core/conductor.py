@@ -57,7 +57,7 @@ class ConductorDecision:
 # Conductor System Prompt
 # ---------------------------------------------------------------------------
 
-CONDUCTOR_SYSTEM_PROMPT = """You are the Conductor of a multi-agent collaboration system called MALS (Multi-Agent Living Space).
+CONDUCTOR_SYSTEM_PROMPT = """You are the Conductor of a multi-agent collaboration system called MALS (Multi-Agent Living System).
 
 Your role is to observe the current state of the shared blackboard and decide the NEXT action to take.
 You NEVER perform domain work yourself. You only route tasks to specialist agents.

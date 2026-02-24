@@ -1,4 +1,4 @@
-# MALS — Multi-Agent Living Space
+# MALS — Multi-Agent Living System
 
 [中文](./README_CN.md) | [English](./README.md)
 
@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/release/python-3110/)
 
-**MALS (Multi-Agent Living Space)** is a multi-agent collaboration framework based on the **Blackboard Architecture**. It replaces fragile, chaotic direct agent communication with a shared, persistent, and self-organizing cognitive space.
+**MALS (Multi-Agent Living System)** is a multi-agent collaboration framework based on the **Blackboard Architecture**. It replaces fragile, chaotic direct agent communication with a shared, persistent, and self-organizing cognitive space.
 
 ## Core Philosophy: Escaping the Tribal Dilemma
 

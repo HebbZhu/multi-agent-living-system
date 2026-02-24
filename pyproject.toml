@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "mals"
 version = "0.1.0"
-description = "Multi-Agent Living Space (MALS) — A blackboard-architecture-based multi-agent collaboration framework"
+description = "MALS (Multi-Agent Living System) — A blackboard-architecture-based multi-agent collaboration framework"
 readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.11"

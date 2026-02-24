@@ -24,7 +24,7 @@ console = Console()
 @click.group()
 @click.version_option(package_name="mals")
 def main() -> None:
-    """MALS — Multi-Agent Living Space: Blackboard-based multi-agent collaboration."""
+    """MALS — Multi-Agent Living System: Blackboard-based multi-agent collaboration."""
     pass
 
 
