@@ -51,3 +51,6 @@ First off, thank you for considering contributing to MALS! It's people like you 
 5.  Provide a clear description of your changes in the pull request.
 
 Thank you for your contribution!
+By the way，I’m building a more interesting platform.
+Hope you’ll keep following, leave me comments, and add me on WeChat: zhu751938340.
+Especially welcome friends working on biomedical & healthcare-related models, agents, and skill development!
