@@ -1,0 +1,112 @@
+{
+  "benchmark_id": 3,
+  "task_name": "data_pipeline",
+  "complexity": "Complex",
+  "objective": "Design and implement a complete data processing pipeline that:\n1. Reads CSV data containing sales records (date, product, quantity, price, region)\n2. Cleans the data: handle missing values, remove duplicates, validate formats\n3. Transforms: calculate total revenue per record, add month/quarter columns\n4. Aggregates: compute summary statistics by product, by region, and by quarter\n5. Generates a text-based report with key findings and top performers\n6. Includes comprehensive error handling and logging\n7. Write unit tests for each pipeline stage\n8. Write documentation explaining the pipeline architecture and usage",
+  "constraints": [
+    "Use Python with pandas for data processing",
+    "Modular design: each pipeline stage should be a separate function",
+    "Include type hints throughout",
+    "Handle edge cases: empty files, malformed rows, negative values",
+    "Generate sample CSV data for testing",
+    "Follow clean code principles"
+  ],
+  "max_steps_allowed": 40,
+  "actual_steps": 5,
+  "status": "COMPLETED",
+  "total_elapsed_s": 74.86,
+  "token_usage": {
+    "conductor": {
+      "input": 4746,
+      "output": 277
+    },
+    "agents": {
+      "input": 651,
+      "output": 6676
+    },
+    "total": 12350
+  },
+  "metrics": {
+    "task_summary": {
+      "elapsed_time_s": 74.86,
+      "total_steps": 4,
+      "total_agent_invocations": 3,
+      "total_tokens": 19446,
+      "conductor_tokens": 12119,
+      "agent_tokens": 7327,
+      "memory_compressions": 0,
+      "status_transitions": 2
+    },
+    "conductor": {
+      "total_steps": 4,
+      "total_input_tokens": 11413,
+      "total_output_tokens": 706,
+      "total_tokens": 12119,
+      "avg_latency_s": 2.252,
+      "decision_counts": {
+        "invoke_agent": 4
+      },
+      "routing_counts": {
+        "planner": 1,
+        "code_generator": 3
+      }
+    },
+    "agents": {
+      "code_generator": {
+        "name": "code_generator",
+        "invocation_count": 2,
+        "success_count": 2,
+        "error_count": 0,
+        "total_input_tokens": 358,
+        "total_output_tokens": 6000,
+        "total_tokens": 6358,
+        "avg_latency_s": 29.048,
+        "p95_latency_s": 29.066,
+        "min_latency_s": 29.03,
+        "max_latency_s": 29.066,
+        "success_rate": 1.0
+      },
+      "planner": {
+        "name": "planner",
+        "invocation_count": 1,
+        "success_count": 1,
+        "error_count": 0,
+        "total_input_tokens": 293,
+        "total_output_tokens": 676,
+        "total_tokens": 969,
+        "avg_latency_s": 7.717,
+        "p95_latency_s": 7.717,
+        "min_latency_s": 7.717,
+        "max_latency_s": 7.717,
+        "success_rate": 1.0
+      }
+    },
+    "consensus": {
+      "total_cycles": 0,
+      "approved_first_try": 0,
+      "approved_after_revision": 0,
+      "force_approved": 0,
+      "total_iterations": 0,
+      "avg_iterations_per_cycle": 0.0,
+      "first_try_approval_rate": 0.0
+    },
+    "status_history": [
+      {
+        "from": "PLANNING",
+        "to": "EXECUTING",
+        "reason": "First agent invoked: planner",
+        "timestamp": 1771983799.2023025
+      },
+      {
+        "from": "EXECUTING",
+        "to": "COMPLETED",
+        "reason": "Loop detection override",
+        "timestamp": 1771983871.7198834
+      }
+    ]
+  },
+  "workspace_keys": [
+    "plan",
+    "code"
+  ]
+}

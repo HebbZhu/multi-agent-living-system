@@ -8,6 +8,7 @@ Each agent follows the same pattern:
 1. Receive a context slice from the Conductor (via the blackboard).
 2. Use an LLM to perform its specialized task.
 3. Write results back to the blackboard.
+4. Return token usage for metrics tracking.
 """
 
 from __future__ import annotations
@@ -51,27 +52,28 @@ def create_builtin_agents(llm_client: LLMClient) -> list[AgentSpec]:
 
         system_prompt = (
             "You are a task planner. Given an objective, create a clear, structured execution plan. "
-            "Break the objective into concrete, actionable steps. "
+            "Break the objective into concrete, actionable steps. Each step should produce a distinct workspace field. "
             "Output a JSON object with a 'steps' array, where each step has 'id', 'title', 'description', and 'output_field' (the workspace field it will produce). "
+            "Use distinct output_field names for different deliverables (e.g., 'code', 'tests', 'documentation'). "
             "Respond in the same language as the objective."
         )
         user_prompt = f"Objective: {objective}"
         if constraints:
             user_prompt += f"\nConstraints: {', '.join(constraints)}"
 
-        response = await llm_client.complete(
+        resp = await llm_client.complete_with_usage(
             system_prompt=system_prompt,
             user_prompt=user_prompt,
             max_tokens=1000,
         )
 
         try:
-            plan = json.loads(_strip_fences(response))
+            plan = json.loads(_strip_fences(resp.content))
         except json.JSONDecodeError:
-            plan = {"steps": [{"id": 1, "title": "Execute task", "description": response, "output_field": "result"}]}
+            plan = {"steps": [{"id": 1, "title": "Execute task", "description": resp.content, "output_field": "result"}]}
 
         board.write_workspace("plan", plan)
-        return {"status": "ok"}
+        return {"status": "ok", "input_tokens": resp.input_tokens, "output_tokens": resp.output_tokens}
 
     # ------------------------------------------------------------------
     # Code Generator Agent
@@ -79,15 +81,17 @@ def create_builtin_agents(llm_client: LLMClient) -> list[AgentSpec]:
     @specialist(
         name="code_generator",
         description="Generates code based on requirements, specifications, or a plan. "
-                    "Writes the generated code to the 'code' workspace field.",
+                    "Can write to any workspace field specified in the plan (e.g., 'code', 'tests').",
         input_fields=["plan", "requirements"],
-        output_fields=["code"],
+        output_fields=["code", "tests"],
     )
     async def code_generator(context: dict[str, Any], board: Blackboard) -> dict[str, Any]:
         workspace = context.get("workspace", {})
         plan = workspace.get("plan", "")
-        requirements = workspace.get("requirements", "")
         consensus = context.get("consensus")
+
+        # Determine which output field to write to based on plan progress
+        output_field = _determine_output_field(workspace, plan)
 
         system_prompt = (
             "You are an expert code generator. Write clean, well-documented, production-quality code "
@@ -98,21 +102,22 @@ def create_builtin_agents(llm_client: LLMClient) -> list[AgentSpec]:
         user_prompt = f"Objective: {context.get('objective', '')}\n"
         if plan:
             user_prompt += f"\nPlan:\n{json.dumps(plan, ensure_ascii=False, indent=2)}"
-        if requirements:
-            user_prompt += f"\nRequirements:\n{requirements}"
         if consensus and consensus.get("last_critique"):
             user_prompt += f"\n\nPrevious review feedback (please address these issues):\n{consensus['last_critique']}"
 
-        response = await llm_client.complete(
+        # Include existing code if writing tests
+        if output_field == "tests" and "code" in workspace:
+            user_prompt += f"\n\nExisting code to test:\n{workspace['code']}"
+
+        resp = await llm_client.complete_with_usage(
             system_prompt=system_prompt,
             user_prompt=user_prompt,
             max_tokens=3000,
         )
 
-        board.write_workspace("code", response)
-        # Request consensus review
-        board.start_consensus("code")
-        return {"status": "ok"}
+        board.write_workspace(output_field, resp.content)
+        board.start_consensus(output_field)
+        return {"status": "ok", "input_tokens": resp.input_tokens, "output_tokens": resp.output_tokens}
 
     # ------------------------------------------------------------------
     # Critic Agent (for Consensus Loop)
@@ -121,12 +126,12 @@ def create_builtin_agents(llm_client: LLMClient) -> list[AgentSpec]:
         name="critic",
         description="Reviews and critiques workspace artifacts for quality, correctness, and completeness. "
                     "Part of the consensus loop — invoked after another agent produces output.",
-        input_fields=["code", "plan", "result"],
+        input_fields=["code", "tests", "plan", "result"],
         output_fields=[],
     )
     async def critic(context: dict[str, Any], board: Blackboard) -> dict[str, Any]:
         if board.state.consensus is None:
-            return {"status": "no_consensus_active"}
+            return {"status": "no_consensus_active", "input_tokens": 0, "output_tokens": 0}
 
         target_field = board.state.consensus.target_field
         artifact = context.get("workspace", {}).get(target_field, "")
@@ -147,20 +152,20 @@ def create_builtin_agents(llm_client: LLMClient) -> list[AgentSpec]:
             f"Artifact to review (field: {target_field}):\n\n{artifact}"
         )
 
-        response = await llm_client.complete(
+        resp = await llm_client.complete_with_usage(
             system_prompt=system_prompt,
             user_prompt=user_prompt,
             max_tokens=800,
         )
 
         try:
-            review = json.loads(_strip_fences(response))
+            review = json.loads(_strip_fences(resp.content))
             verdict_str = review.get("verdict", "REJECTED").upper()
             verdict = ConsensusStatus.APPROVED if verdict_str == "APPROVED" else ConsensusStatus.REJECTED
-            critique = review.get("critique", response)
+            critique = review.get("critique", resp.content)
         except json.JSONDecodeError:
             verdict = ConsensusStatus.REJECTED
-            critique = response
+            critique = resp.content
 
         board.submit_review(
             reviewer_agent="critic",
@@ -168,7 +173,7 @@ def create_builtin_agents(llm_client: LLMClient) -> list[AgentSpec]:
             critique=critique,
         )
 
-        return {"status": "ok", "verdict": verdict.value}
+        return {"status": "ok", "verdict": verdict.value, "input_tokens": resp.input_tokens, "output_tokens": resp.output_tokens}
 
     # ------------------------------------------------------------------
     # Writer Agent
@@ -176,13 +181,16 @@ def create_builtin_agents(llm_client: LLMClient) -> list[AgentSpec]:
     @specialist(
         name="writer",
         description="Generates written content such as documentation, reports, or summaries. "
-                    "Writes output to the 'result' workspace field.",
-        input_fields=["plan", "code", "requirements"],
-        output_fields=["result"],
+                    "Writes output to the specified workspace field (default: 'result').",
+        input_fields=["plan", "code", "tests", "requirements"],
+        output_fields=["result", "documentation"],
     )
     async def writer(context: dict[str, Any], board: Blackboard) -> dict[str, Any]:
         workspace = context.get("workspace", {})
         consensus = context.get("consensus")
+
+        # Determine output field
+        output_field = _determine_output_field(workspace, workspace.get("plan", ""), prefer="result")
 
         system_prompt = (
             "You are an expert technical writer. Produce clear, well-structured, professional content "
@@ -199,15 +207,15 @@ def create_builtin_agents(llm_client: LLMClient) -> list[AgentSpec]:
         if consensus and consensus.get("last_critique"):
             user_prompt += f"\n\nPrevious review feedback:\n{consensus['last_critique']}"
 
-        response = await llm_client.complete(
+        resp = await llm_client.complete_with_usage(
             system_prompt=system_prompt,
             user_prompt=user_prompt,
             max_tokens=3000,
         )
 
-        board.write_workspace("result", response)
-        board.start_consensus("result")
-        return {"status": "ok"}
+        board.write_workspace(output_field, resp.content)
+        board.start_consensus(output_field)
+        return {"status": "ok", "input_tokens": resp.input_tokens, "output_tokens": resp.output_tokens}
 
     # ------------------------------------------------------------------
     # Summarizer Agent
@@ -216,7 +224,7 @@ def create_builtin_agents(llm_client: LLMClient) -> list[AgentSpec]:
         name="summarizer",
         description="Produces a final summary of all completed work. "
                     "Should be invoked near the end of a task to consolidate results.",
-        input_fields=["plan", "code", "result"],
+        input_fields=["plan", "code", "tests", "result"],
         output_fields=["final_summary"],
     )
     async def summarizer(context: dict[str, Any], board: Blackboard) -> dict[str, Any]:
@@ -235,17 +243,21 @@ def create_builtin_agents(llm_client: LLMClient) -> list[AgentSpec]:
             else:
                 user_prompt += f"\n--- {key} ---\n{json.dumps(value, ensure_ascii=False)[:1500]}"
 
-        response = await llm_client.complete(
+        resp = await llm_client.complete_with_usage(
             system_prompt=system_prompt,
             user_prompt=user_prompt,
             max_tokens=1000,
         )
 
-        board.write_workspace("final_summary", response)
-        return {"status": "ok"}
+        board.write_workspace("final_summary", resp.content)
+        return {"status": "ok", "input_tokens": resp.input_tokens, "output_tokens": resp.output_tokens}
 
     return [planner, code_generator, critic, writer, summarizer]
 
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
 
 def _strip_fences(text: str) -> str:
     """Remove markdown code fences from LLM output."""
@@ -255,3 +267,22 @@ def _strip_fences(text: str) -> str:
         lines = [l for l in lines if not l.strip().startswith("```")]
         text = "\n".join(lines).strip()
     return text
+
+
+def _determine_output_field(
+    workspace: dict[str, Any],
+    plan: Any,
+    prefer: str = "code",
+) -> str:
+    """
+    Determine which workspace field to write to based on plan progress.
+
+    Looks at the plan steps and finds the first step whose output_field
+    doesn't yet have content in the workspace.
+    """
+    if isinstance(plan, dict) and "steps" in plan:
+        for step in plan["steps"]:
+            field = step.get("output_field", prefer)
+            if field not in workspace or not workspace.get(field):
+                return field
+    return prefer

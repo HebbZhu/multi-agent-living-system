@@ -1,0 +1,79 @@
+{
+  "task_summary": {
+    "elapsed_time_s": 46.09,
+    "total_steps": 4,
+    "total_agent_invocations": 3,
+    "total_tokens": 15658,
+    "conductor_tokens": 11267,
+    "agent_tokens": 4391,
+    "memory_compressions": 0,
+    "status_transitions": 2
+  },
+  "conductor": {
+    "total_steps": 4,
+    "total_input_tokens": 10495,
+    "total_output_tokens": 772,
+    "total_tokens": 11267,
+    "avg_latency_s": 2.023,
+    "decision_counts": {
+      "invoke_agent": 4
+    },
+    "routing_counts": {
+      "planner": 1,
+      "code_generator": 3
+    }
+  },
+  "agents": {
+    "code_generator": {
+      "name": "code_generator",
+      "invocation_count": 2,
+      "success_count": 2,
+      "error_count": 0,
+      "total_input_tokens": 572,
+      "total_output_tokens": 3311,
+      "total_tokens": 3883,
+      "avg_latency_s": 16.889,
+      "p95_latency_s": 17.452,
+      "min_latency_s": 16.327,
+      "max_latency_s": 17.452,
+      "success_rate": 1.0
+    },
+    "planner": {
+      "name": "planner",
+      "invocation_count": 1,
+      "success_count": 1,
+      "error_count": 0,
+      "total_input_tokens": 255,
+      "total_output_tokens": 253,
+      "total_tokens": 508,
+      "avg_latency_s": 4.159,
+      "p95_latency_s": 4.159,
+      "min_latency_s": 4.159,
+      "max_latency_s": 4.159,
+      "success_rate": 1.0
+    }
+  },
+  "consensus": {
+    "total_cycles": 0,
+    "approved_first_try": 0,
+    "approved_after_revision": 0,
+    "force_approved": 0,
+    "total_iterations": 0,
+    "avg_iterations_per_cycle": 0.0,
+    "first_try_approval_rate": 0.0
+  },
+  "status_history": [
+    {
+      "from": "PLANNING",
+      "to": "EXECUTING",
+      "reason": "First agent invoked: planner",
+      "timestamp": 1771983753.026658
+    },
+    {
+      "from": "EXECUTING",
+      "to": "COMPLETED",
+      "reason": "Loop detection override",
+      "timestamp": 1771983796.7507284
+    }
+  ]
+}

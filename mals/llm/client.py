@@ -30,6 +30,15 @@ class LLMUsage:
     total_tokens: int = 0
 
 
+@dataclass
+class LLMResponse:
+    """Structured response from an LLM call, including content and usage."""
+    content: str
+    input_tokens: int = 0
+    output_tokens: int = 0
+    total_tokens: int = 0
+
+
 class LLMClient:
     """
     Async LLM client with OpenAI-compatible API support.
@@ -68,6 +77,7 @@ class LLMClient:
 
         self._client = AsyncOpenAI(**client_kwargs)
         self._total_usage = LLMUsage()
+        self._last_usage = LLMUsage()
 
         logger.info("LLMClient initialized: model=%s", self.model)
 
@@ -82,6 +92,29 @@ class LLMClient:
         """
         Send a completion request to the LLM.
 
+        Returns:
+            The LLM's response text.
+        """
+        resp = await self.complete_with_usage(
+            system_prompt=system_prompt,
+            user_prompt=user_prompt,
+            model=model,
+            max_tokens=max_tokens,
+            temperature=temperature,
+        )
+        return resp.content
+
+    async def complete_with_usage(
+        self,
+        system_prompt: str,
+        user_prompt: str,
+        model: str | None = None,
+        max_tokens: int = 2000,
+        temperature: float | None = None,
+    ) -> LLMResponse:
+        """
+        Send a completion request and return both content and token usage.
+
         Args:
             system_prompt: The system message that sets the agent's behavior.
             user_prompt: The user message containing the task or question.
@@ -90,7 +123,7 @@ class LLMClient:
             temperature: Override the default temperature for this call.
 
         Returns:
-            The LLM's response text.
+            An LLMResponse with content and per-call token usage.
         """
         messages = [
             {"role": "system", "content": system_prompt},
@@ -105,20 +138,33 @@ class LLMClient:
                 temperature=temperature if temperature is not None else self.default_temperature,
             )
 
-            # Track usage
-            if response.usage:
-                self._total_usage.input_tokens += response.usage.prompt_tokens
-                self._total_usage.output_tokens += response.usage.completion_tokens
-                self._total_usage.total_tokens += response.usage.total_tokens
+            input_tok = response.usage.prompt_tokens if response.usage else 0
+            output_tok = response.usage.completion_tokens if response.usage else 0
+            total_tok = response.usage.total_tokens if response.usage else 0
+
+            # Track cumulative usage
+            self._total_usage.input_tokens += input_tok
+            self._total_usage.output_tokens += output_tok
+            self._total_usage.total_tokens += total_tok
+
+            # Store last call usage for easy access
+            self._last_usage = LLMUsage(
+                input_tokens=input_tok,
+                output_tokens=output_tok,
+                total_tokens=total_tok,
+            )
 
             content = response.choices[0].message.content or ""
             logger.debug(
                 "LLM call: model=%s, input=%d, output=%d tokens",
-                model or self.model,
-                response.usage.prompt_tokens if response.usage else 0,
-                response.usage.completion_tokens if response.usage else 0,
+                model or self.model, input_tok, output_tok,
             )
-            return content
+            return LLMResponse(
+                content=content,
+                input_tokens=input_tok,
+                output_tokens=output_tok,
+                total_tokens=total_tok,
+            )
 
         except Exception as e:
             logger.error("LLM call failed: %s", e)

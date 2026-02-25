@@ -49,21 +49,36 @@ class MemoryManager:
         lines.append(f"Objective: {state.objective}")
         lines.append(f"Status: {state.global_status.value}")
 
-        # Workspace summary (one line per field)
+        # Workspace fields inventory (explicit existence check)
         if state.workspace:
-            workspace_lines: list[str] = []
+            existing_fields = list(state.workspace.keys())
+            lines.append(f"Workspace fields present: {existing_fields}")
+
+            # Plan progress tracking
+            plan = state.workspace.get("plan")
+            if isinstance(plan, dict) and "steps" in plan:
+                lines.append("Plan exists with steps:")
+                for step in plan["steps"]:
+                    output_field = step.get("output_field", "?")
+                    has_output = output_field in state.workspace
+                    status_mark = "[DONE]" if has_output else "[TODO]"
+                    lines.append(f"  {status_mark} Step {step.get('id', '?')}: {step.get('title', '?')} -> {output_field}")
+
+            # Workspace content summary (one line per field, excluding plan)
+            lines.append("Workspace content:")
             for key, value in state.workspace.items():
+                if key == "plan":
+                    continue  # Already shown above
                 if key in state.memory.warm:
-                    # Use the warm summary instead of full content
-                    workspace_lines.append(f"  {key}: [completed] {state.memory.warm[key]}")
+                    lines.append(f"  {key}: [completed] {state.memory.warm[key]}")
                 elif isinstance(value, str) and len(value) > 200:
-                    workspace_lines.append(f"  {key}: {value[:150]}... ({len(value)} chars)")
+                    lines.append(f"  {key}: {value[:120]}... ({len(value)} chars)")
                 elif isinstance(value, dict):
-                    workspace_lines.append(f"  {key}: {json.dumps(value, ensure_ascii=False)[:150]}")
+                    lines.append(f"  {key}: {json.dumps(value, ensure_ascii=False)[:120]}")
                 else:
-                    workspace_lines.append(f"  {key}: {value}")
-            lines.append("Workspace:")
-            lines.extend(workspace_lines)
+                    lines.append(f"  {key}: {value}")
+        else:
+            lines.append("Workspace fields present: [] (empty)")
 
         # Active consensus
         if state.consensus:
@@ -75,12 +90,14 @@ class MemoryManager:
             if c.review_history:
                 last_review = c.review_history[-1]
                 lines.append(f"  Last review by {last_review.reviewer_agent}: {last_review.critique[:100]}")
+        else:
+            lines.append("Consensus: none active")
 
         # Active hypotheses (only proposed ones)
         proposed = [h for h in state.hypothesis_thread if h.status.value == "proposed"]
         if proposed:
             lines.append(f"Open hypotheses ({len(proposed)}):")
-            for h in proposed[-3:]:  # Show at most 3 most recent
+            for h in proposed[-3:]:
                 lines.append(f"  [{h.id}] by {h.author_agent}: {h.content[:80]}")
 
         # Constraints

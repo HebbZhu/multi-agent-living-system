@@ -5,7 +5,7 @@ A blackboard-architecture-based multi-agent collaboration framework that replace
 fragile direct communication with a shared, persistent, self-organizing cognitive space.
 """
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 from mals.core.blackboard import Blackboard
 from mals.core.conductor import Conductor

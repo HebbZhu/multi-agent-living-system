@@ -3,8 +3,8 @@ MALS CLI — Command-line interface for running multi-agent tasks.
 
 Usage:
     mals run "Build a REST API with authentication"
-    mals run "Write a Python script to analyze CSV data" --max-steps 30
-    mals run "Generate unit tests for my code" --model gpt-4.1-mini
+    mals run "Write a Python script to analyze CSV data" --max-steps 30 --export ./output
+    mals dashboard --recording output/task_recording.json --metrics output/task_metrics.json
 """
 
 from __future__ import annotations
@@ -37,6 +37,7 @@ def main() -> None:
 @click.option("--redis-url", default="redis://localhost:6379/0", help="Redis URL (only for redis backend)")
 @click.option("--constraint", "-k", multiple=True, help="Add a constraint (can be repeated)")
 @click.option("--output", "-o", default=None, help="Save results to a JSON file")
+@click.option("--export", "-e", default=None, help="Export metrics and recording to a directory")
 @click.option("--verbose", "-v", is_flag=True, help="Enable verbose (DEBUG) logging")
 def run(
     objective: str,
@@ -47,6 +48,7 @@ def run(
     redis_url: str,
     constraint: tuple[str, ...],
     output: str | None,
+    export: str | None,
     verbose: bool,
 ) -> None:
     """Run a multi-agent task with the given objective."""
@@ -81,7 +83,13 @@ def run(
     constraints = list(constraint) if constraint else None
 
     try:
-        result = asyncio.run(engine.run(objective, constraints=constraints, max_steps=max_steps))
+        result = asyncio.run(engine.run(
+            objective,
+            constraints=constraints,
+            max_steps=max_steps,
+            record=True,
+            export_dir=export,
+        ))
     except KeyboardInterrupt:
         console.print("\n[yellow]Task interrupted by user.[/yellow]")
         sys.exit(1)
@@ -95,8 +103,70 @@ def run(
     # Save to file if requested
     if output:
         with open(output, "w", encoding="utf-8") as f:
-            json.dump(result, f, ensure_ascii=False, indent=2)
+            json.dump(result, f, ensure_ascii=False, indent=2, default=str)
         console.print(f"\n[green]Results saved to {output}[/green]")
+
+    if export:
+        console.print(f"\n[green]Metrics and recording exported to {export}/[/green]")
+        console.print(f"[dim]View with: mals dashboard --dir {export}[/dim]")
+
+
+@main.command()
+@click.option("--dir", "-d", default=None, help="Directory containing exported metrics and recording files")
+@click.option("--recording", "-r", default=None, help="Path to recording JSON file")
+@click.option("--metrics", "-m", default=None, help="Path to metrics JSON file")
+@click.option("--port", "-p", default=8765, help="Dashboard server port (default: 8765)")
+@click.option("--host", "-h", default="0.0.0.0", help="Dashboard server host (default: 0.0.0.0)")
+def dashboard(
+    dir: str | None,
+    recording: str | None,
+    metrics: str | None,
+    port: int,
+    host: str,
+) -> None:
+    """Launch the web dashboard to visualize task execution."""
+    import glob
+    from pathlib import Path
+
+    # Resolve file paths
+    recording_file = recording
+    metrics_file = metrics
+
+    if dir:
+        dir_path = Path(dir)
+        if not recording_file:
+            candidates = sorted(glob.glob(str(dir_path / "*_recording.json")))
+            if candidates:
+                recording_file = candidates[-1]  # Most recent
+        if not metrics_file:
+            candidates = sorted(glob.glob(str(dir_path / "*_metrics.json")))
+            if candidates:
+                metrics_file = candidates[-1]
+
+    if not recording_file and not metrics_file:
+        console.print("[red]Error: No data files found. Provide --dir, --recording, or --metrics.[/red]")
+        sys.exit(1)
+
+    console.print(Panel(
+        f"Recording: {recording_file or 'N/A'}\nMetrics: {metrics_file or 'N/A'}",
+        title="[cyan]MALS Dashboard[/cyan]",
+        subtitle=f"http://{host}:{port}",
+        border_style="cyan",
+    ))
+
+    from mals.observability.dashboard import create_dashboard_app
+
+    app = create_dashboard_app(
+        recording_file=recording_file,
+        metrics_file=metrics_file,
+    )
+
+    try:
+        import uvicorn
+        uvicorn.run(app, host=host, port=port, log_level="warning")
+    except ImportError:
+        console.print("[red]Dashboard requires 'uvicorn'. Install with: pip install uvicorn[/red]")
+        sys.exit(1)
 
 
 @main.command()
@@ -176,6 +246,7 @@ def _display_results(result: dict) -> None:
     status = result["status"]
     status_style = "green" if status == "COMPLETED" else "red"
     console.print(f"\n[{status_style}]Status: {status}[/{status_style}]")
+    console.print(f"Steps: {result.get('steps', 0)}")
 
     # Token usage
     usage = result.get("token_usage", {})
@@ -203,21 +274,20 @@ def _display_results(result: dict) -> None:
     )
     console.print(usage_table)
 
-    # Invocation log
-    log = result.get("invocation_log", [])
-    if log:
-        log_table = Table(title="Agent Invocations", show_lines=True)
-        log_table.add_column("#", justify="right", style="dim")
-        log_table.add_column("Agent", style="cyan")
-        log_table.add_column("Status", style="green")
-        log_table.add_column("Duration", justify="right")
-
-        for i, entry in enumerate(log, 1):
-            duration = entry.get("duration")
-            duration_str = f"{duration:.1f}s" if duration else "-"
-            log_table.add_row(str(i), entry["agent"], entry["status"], duration_str)
-
-        console.print(log_table)
+    # Metrics summary
+    metrics = result.get("metrics", {})
+    if metrics:
+        ts = metrics.get("task_summary", {})
+        if ts:
+            metrics_table = Table(title="Metrics Summary", show_lines=True)
+            metrics_table.add_column("Metric", style="cyan")
+            metrics_table.add_column("Value", justify="right")
+            metrics_table.add_row("Total Steps", str(ts.get("total_steps", 0)))
+            metrics_table.add_row("Agent Invocations", str(ts.get("total_agent_invocations", 0)))
+            metrics_table.add_row("Elapsed Time", f"{ts.get('elapsed_time_s', 0):.1f}s")
+            metrics_table.add_row("Total Tokens", str(ts.get("total_tokens", 0)))
+            metrics_table.add_row("Memory Compressions", str(ts.get("memory_compressions", 0)))
+            console.print(metrics_table)
 
     # Workspace output
     workspace = result.get("workspace", {})

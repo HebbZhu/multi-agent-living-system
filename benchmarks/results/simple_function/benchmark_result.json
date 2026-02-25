@@ -1,0 +1,109 @@
+{
+  "benchmark_id": 1,
+  "task_name": "simple_function",
+  "complexity": "Simple",
+  "objective": "Write a Python function called `merge_sorted_lists` that takes two sorted lists of integers and returns a single sorted list containing all elements from both lists. The function should run in O(n+m) time complexity. Also write 5 unit tests using pytest to verify correctness, including edge cases like empty lists and lists with duplicate values.",
+  "constraints": [
+    "Use only Python standard library",
+    "Include type hints",
+    "Include a docstring with examples"
+  ],
+  "max_steps_allowed": 15,
+  "actual_steps": 5,
+  "status": "COMPLETED",
+  "total_elapsed_s": 30.05,
+  "token_usage": {
+    "conductor": {
+      "input": 4072,
+      "output": 293
+    },
+    "agents": {
+      "input": 441,
+      "output": 1041
+    },
+    "total": 5847
+  },
+  "metrics": {
+    "task_summary": {
+      "elapsed_time_s": 30.05,
+      "total_steps": 4,
+      "total_agent_invocations": 3,
+      "total_tokens": 12073,
+      "conductor_tokens": 10591,
+      "agent_tokens": 1482,
+      "memory_compressions": 0,
+      "status_transitions": 2
+    },
+    "conductor": {
+      "total_steps": 4,
+      "total_input_tokens": 9874,
+      "total_output_tokens": 717,
+      "total_tokens": 10591,
+      "avg_latency_s": 2.401,
+      "decision_counts": {
+        "invoke_agent": 4
+      },
+      "routing_counts": {
+        "planner": 1,
+        "code_generator": 3
+      }
+    },
+    "agents": {
+      "code_generator": {
+        "name": "code_generator",
+        "invocation_count": 2,
+        "success_count": 2,
+        "error_count": 0,
+        "total_input_tokens": 240,
+        "total_output_tokens": 840,
+        "total_tokens": 1080,
+        "avg_latency_s": 5.691,
+        "p95_latency_s": 5.93,
+        "min_latency_s": 5.452,
+        "max_latency_s": 5.93,
+        "success_rate": 1.0
+      },
+      "planner": {
+        "name": "planner",
+        "invocation_count": 1,
+        "success_count": 1,
+        "error_count": 0,
+        "total_input_tokens": 201,
+        "total_output_tokens": 201,
+        "total_tokens": 402,
+        "avg_latency_s": 9.037,
+        "p95_latency_s": 9.037,
+        "min_latency_s": 9.037,
+        "max_latency_s": 9.037,
+        "success_rate": 1.0
+      }
+    },
+    "consensus": {
+      "total_cycles": 0,
+      "approved_first_try": 0,
+      "approved_after_revision": 0,
+      "force_approved": 0,
+      "total_iterations": 0,
+      "avg_iterations_per_cycle": 0.0,
+      "first_try_approval_rate": 0.0
+    },
+    "status_history": [
+      {
+        "from": "PLANNING",
+        "to": "EXECUTING",
+        "reason": "First agent invoked: planner",
+        "timestamp": 1771983723.1567447
+      },
+      {
+        "from": "EXECUTING",
+        "to": "COMPLETED",
+        "reason": "Loop detection override",
+        "timestamp": 1771983750.5455925
+      }
+    ]
+  },
+  "workspace_keys": [
+    "plan",
+    "code"
+  ]
+}

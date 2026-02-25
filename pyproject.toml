@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mals"
-version = "0.1.0"
+version = "0.2.0"
 description = "MALS (Multi-Agent Living System) — A blackboard-architecture-based multi-agent collaboration framework"
 readme = "README.md"
 license = {text = "MIT"}
@@ -29,6 +29,8 @@ dependencies = [
     "rich>=13.0.0",
     "click>=8.0.0",
     "pyyaml>=6.0",
+    "fastapi>=0.100.0",
+    "uvicorn>=0.23.0",
 ]
 
 [project.optional-dependencies]

@@ -1,0 +1,335 @@
+[
+  {
+    "benchmark_id": 1,
+    "task_name": "simple_function",
+    "complexity": "Simple",
+    "objective": "Write a Python function called `merge_sorted_lists` that takes two sorted lists of integers and returns a single sorted list containing all elements from both lists. The function should run in O(n+m) time complexity. Also write 5 unit tests using pytest to verify correctness, including edge cases like empty lists and lists with duplicate values.",
+    "constraints": [
+      "Use only Python standard library",
+      "Include type hints",
+      "Include a docstring with examples"
+    ],
+    "max_steps_allowed": 15,
+    "actual_steps": 5,
+    "status": "COMPLETED",
+    "total_elapsed_s": 30.05,
+    "token_usage": {
+      "conductor": {
+        "input": 4072,
+        "output": 293
+      },
+      "agents": {
+        "input": 441,
+        "output": 1041
+      },
+      "total": 5847
+    },
+    "metrics": {
+      "task_summary": {
+        "elapsed_time_s": 30.05,
+        "total_steps": 4,
+        "total_agent_invocations": 3,
+        "total_tokens": 12073,
+        "conductor_tokens": 10591,
+        "agent_tokens": 1482,
+        "memory_compressions": 0,
+        "status_transitions": 2
+      },
+      "conductor": {
+        "total_steps": 4,
+        "total_input_tokens": 9874,
+        "total_output_tokens": 717,
+        "total_tokens": 10591,
+        "avg_latency_s": 2.401,
+        "decision_counts": {
+          "invoke_agent": 4
+        },
+        "routing_counts": {
+          "planner": 1,
+          "code_generator": 3
+        }
+      },
+      "agents": {
+        "code_generator": {
+          "name": "code_generator",
+          "invocation_count": 2,
+          "success_count": 2,
+          "error_count": 0,
+          "total_input_tokens": 240,
+          "total_output_tokens": 840,
+          "total_tokens": 1080,
+          "avg_latency_s": 5.691,
+          "p95_latency_s": 5.93,
+          "min_latency_s": 5.452,
+          "max_latency_s": 5.93,
+          "success_rate": 1.0
+        },
+        "planner": {
+          "name": "planner",
+          "invocation_count": 1,
+          "success_count": 1,
+          "error_count": 0,
+          "total_input_tokens": 201,
+          "total_output_tokens": 201,
+          "total_tokens": 402,
+          "avg_latency_s": 9.037,
+          "p95_latency_s": 9.037,
+          "min_latency_s": 9.037,
+          "max_latency_s": 9.037,
+          "success_rate": 1.0
+        }
+      },
+      "consensus": {
+        "total_cycles": 0,
+        "approved_first_try": 0,
+        "approved_after_revision": 0,
+        "force_approved": 0,
+        "total_iterations": 0,
+        "avg_iterations_per_cycle": 0.0,
+        "first_try_approval_rate": 0.0
+      },
+      "status_history": [
+        {
+          "from": "PLANNING",
+          "to": "EXECUTING",
+          "reason": "First agent invoked: planner",
+          "timestamp": 1771983723.1567447
+        },
+        {
+          "from": "EXECUTING",
+          "to": "COMPLETED",
+          "reason": "Loop detection override",
+          "timestamp": 1771983750.5455925
+        }
+      ]
+    },
+    "workspace_keys": [
+      "plan",
+      "code"
+    ]
+  },
+  {
+    "benchmark_id": 2,
+    "task_name": "rest_api_design",
+    "complexity": "Medium",
+    "objective": "Design a REST API for a simple task management system (todo app). Provide the following deliverables:\n1. API specification: list all endpoints (method, path, request/response schema)\n2. Data model: define the Task entity with fields and types\n3. Implementation: write a complete Flask application with all endpoints\n4. Error handling: proper HTTP status codes and error response format\nThe API should support: create task, list tasks, get task by ID, update task, delete task, and mark task as complete.",
+    "constraints": [
+      "Use Flask framework",
+      "Use in-memory storage (dict) for simplicity",
+      "Follow RESTful conventions",
+      "Include input validation",
+      "Return JSON responses with consistent format"
+    ],
+    "max_steps_allowed": 25,
+    "actual_steps": 5,
+    "status": "COMPLETED",
+    "total_elapsed_s": 46.1,
+    "token_usage": {
+      "conductor": {
+        "input": 4350,
+        "output": 320
+      },
+      "agents": {
+        "input": 827,
+        "output": 3564
+      },
+      "total": 9061
+    },
+    "metrics": {
+      "task_summary": {
+        "elapsed_time_s": 46.09,
+        "total_steps": 4,
+        "total_agent_invocations": 3,
+        "total_tokens": 15658,
+        "conductor_tokens": 11267,
+        "agent_tokens": 4391,
+        "memory_compressions": 0,
+        "status_transitions": 2
+      },
+      "conductor": {
+        "total_steps": 4,
+        "total_input_tokens": 10495,
+        "total_output_tokens": 772,
+        "total_tokens": 11267,
+        "avg_latency_s": 2.023,
+        "decision_counts": {
+          "invoke_agent": 4
+        },
+        "routing_counts": {
+          "planner": 1,
+          "code_generator": 3
+        }
+      },
+      "agents": {
+        "code_generator": {
+          "name": "code_generator",
+          "invocation_count": 2,
+          "success_count": 2,
+          "error_count": 0,
+          "total_input_tokens": 572,
+          "total_output_tokens": 3311,
+          "total_tokens": 3883,
+          "avg_latency_s": 16.889,
+          "p95_latency_s": 17.452,
+          "min_latency_s": 16.327,
+          "max_latency_s": 17.452,
+          "success_rate": 1.0
+        },
+        "planner": {
+          "name": "planner",
+          "invocation_count": 1,
+          "success_count": 1,
+          "error_count": 0,
+          "total_input_tokens": 255,
+          "total_output_tokens": 253,
+          "total_tokens": 508,
+          "avg_latency_s": 4.159,
+          "p95_latency_s": 4.159,
+          "min_latency_s": 4.159,
+          "max_latency_s": 4.159,
+          "success_rate": 1.0
+        }
+      },
+      "consensus": {
+        "total_cycles": 0,
+        "approved_first_try": 0,
+        "approved_after_revision": 0,
+        "force_approved": 0,
+        "total_iterations": 0,
+        "avg_iterations_per_cycle": 0.0,
+        "first_try_approval_rate": 0.0
+      },
+      "status_history": [
+        {
+          "from": "PLANNING",
+          "to": "EXECUTING",
+          "reason": "First agent invoked: planner",
+          "timestamp": 1771983753.026658
+        },
+        {
+          "from": "EXECUTING",
+          "to": "COMPLETED",
+          "reason": "Loop detection override",
+          "timestamp": 1771983796.7507284
+        }
+      ]
+    },
+    "workspace_keys": [
+      "plan",
+      "api_specification",
+      "code"
+    ]
+  },
+  {
+    "benchmark_id": 3,
+    "task_name": "data_pipeline",
+    "complexity": "Complex",
+    "objective": "Design and implement a complete data processing pipeline that:\n1. Reads CSV data containing sales records (date, product, quantity, price, region)\n2. Cleans the data: handle missing values, remove duplicates, validate formats\n3. Transforms: calculate total revenue per record, add month/quarter columns\n4. Aggregates: compute summary statistics by product, by region, and by quarter\n5. Generates a text-based report with key findings and top performers\n6. Includes comprehensive error handling and logging\n7. Write unit tests for each pipeline stage\n8. Write documentation explaining the pipeline architecture and usage",
+    "constraints": [
+      "Use Python with pandas for data processing",
+      "Modular design: each pipeline stage should be a separate function",
+      "Include type hints throughout",
+      "Handle edge cases: empty files, malformed rows, negative values",
+      "Generate sample CSV data for testing",
+      "Follow clean code principles"
+    ],
+    "max_steps_allowed": 40,
+    "actual_steps": 5,
+    "status": "COMPLETED",
+    "total_elapsed_s": 74.86,
+    "token_usage": {
+      "conductor": {
+        "input": 4746,
+        "output": 277
+      },
+      "agents": {
+        "input": 651,
+        "output": 6676
+      },
+      "total": 12350
+    },
+    "metrics": {
+      "task_summary": {
+        "elapsed_time_s": 74.86,
+        "total_steps": 4,
+        "total_agent_invocations": 3,
+        "total_tokens": 19446,
+        "conductor_tokens": 12119,
+        "agent_tokens": 7327,
+        "memory_compressions": 0,
+        "status_transitions": 2
+      },
+      "conductor": {
+        "total_steps": 4,
+        "total_input_tokens": 11413,
+        "total_output_tokens": 706,
+        "total_tokens": 12119,
+        "avg_latency_s": 2.252,
+        "decision_counts": {
+          "invoke_agent": 4
+        },
+        "routing_counts": {
+          "planner": 1,
+          "code_generator": 3
+        }
+      },
+      "agents": {
+        "code_generator": {
+          "name": "code_generator",
+          "invocation_count": 2,
+          "success_count": 2,
+          "error_count": 0,
+          "total_input_tokens": 358,
+          "total_output_tokens": 6000,
+          "total_tokens": 6358,
+          "avg_latency_s": 29.048,
+          "p95_latency_s": 29.066,
+          "min_latency_s": 29.03,
+          "max_latency_s": 29.066,
+          "success_rate": 1.0
+        },
+        "planner": {
+          "name": "planner",
+          "invocation_count": 1,
+          "success_count": 1,
+          "error_count": 0,
+          "total_input_tokens": 293,
+          "total_output_tokens": 676,
+          "total_tokens": 969,
+          "avg_latency_s": 7.717,
+          "p95_latency_s": 7.717,
+          "min_latency_s": 7.717,
+          "max_latency_s": 7.717,
+          "success_rate": 1.0
+        }
+      },
+      "consensus": {
+        "total_cycles": 0,
+        "approved_first_try": 0,
+        "approved_after_revision": 0,
+        "force_approved": 0,
+        "total_iterations": 0,
+        "avg_iterations_per_cycle": 0.0,
+        "first_try_approval_rate": 0.0
+      },
+      "status_history": [
+        {
+          "from": "PLANNING",
+          "to": "EXECUTING",
+          "reason": "First agent invoked: planner",
+          "timestamp": 1771983799.2023025
+        },
+        {
+          "from": "EXECUTING",
+          "to": "COMPLETED",
+          "reason": "Loop detection override",
+          "timestamp": 1771983871.7198834
+        }
+      ]
+    },
+    "workspace_keys": [
+      "plan",
+      "code"
+    ]
+  }
+]
